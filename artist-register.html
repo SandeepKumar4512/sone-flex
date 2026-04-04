@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Artist Profile</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #0f172a, #1e293b);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: white;
+}
+.container {
+    background: #1e293b;
+    padding: 30px 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    width: 350px;
+}
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #facc15;
+}
+input[type=text], input[type=email], input[type=password], input[type=file] {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: none;
+}
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    color: white;
+    transition: 0.3s;
+}
+.register-btn { background: #4caf50; }
+.register-btn:hover { background: #43a047; }
+.google-btn { background: #db4437; margin-top: 15px; }
+.google-btn:hover { background: #c23321; }
+img#preview { display: none; margin: 10px auto; max-width: 100px; border-radius: 50%; }
+.message { text-align: center; margin-top: 10px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Create Artist Profile</h2>
+    <form id="artistForm" enctype="multipart/form-data">
+        <input type="text" name="name" placeholder="Full Name" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="file" name="profilePic" accept="image/*" onchange="previewImage(event)">
+        <img id="preview" src="#" alt="Profile Preview">
+        <button type="submit" class="register-btn">Register</button>
+    </form>
+
+    <a href="/auth/google"><button type="button" class="google-btn">Login/Register with Google</button></a>
+    <div class="message" id="msg"></div>
+</div>
+
+<script>
+const form = document.getElementById('artistForm');
+const msg = document.getElementById('msg');
+const preview = document.getElementById('preview');
+
+function previewImage(event) {
+    const file = event.target.files[0];
+    if(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+    } else {
+        preview.src = '#';
+        preview.style.display = 'none';
+    }
+}
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+
+    try {
+        const res = await fetch('/api/artist/register', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if(res.ok) {
+            msg.style.color = 'lightgreen';
+            msg.innerText = data.message;
+            form.reset();
+            preview.style.display = 'none';
+        } else {
+            msg.style.color = 'red';
+            msg.innerText = data.message || 'Registration failed';
+        }
+    } catch (err) {
+        msg.style.color = 'red';
+        msg.innerText = 'Error: ' + err.message;
+    }
+});
+</script>
+
+</body>
+</html>

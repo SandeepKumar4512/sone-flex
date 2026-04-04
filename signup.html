@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artist Profile & Signup 🎧</title>
+<style>
+body{margin:0;font-family:Arial;background:#000;color:white;}
+.container{padding:20px;max-width:400px;margin:auto;}
+h2{text-align:center;color:#1db954;}
+input{width:100%;padding:10px;margin:8px 0;border-radius:10px;border:none;font-size:16px;}
+input[type="file"]{padding:3px;}
+button{width:100%;padding:10px;margin-top:10px;background:#1db954;color:#fff;border:none;border-radius:10px;font-size:16px;cursor:pointer;}
+button:hover{background:#13a047;}
+#profilePreview{display:block;margin:10px auto;width:100px;height:100px;border-radius:50%;object-fit:cover;border:2px solid #1db954;}
+#error{color:red;text-align:center;}
+.topbar{display:flex;align-items:center;padding:10px;background:#111;}
+.topbar button{background:none;border:none;color:white;font-size:18px;cursor:pointer;margin-right:10px;}
+.profile{display:flex;flex-direction:column;align-items:center;padding:20px;}
+.profile img{width:120px;height:120px;border-radius:50%;border:2px solid #1db954;margin-bottom:10px;}
+.profile h2{margin:5px 0;}
+.profile p{margin:3px 0;color:#aaa;}
+.songs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;}
+.card{background:#111;padding:10px;border-radius:15px;}
+.card img{width:100%;border-radius:10px;cursor:pointer;}
+.card div{margin-top:5px;color:#fff;font-size:14px;}
+</style>
+</head>
+<body>
+
+<div id="signupScreen" class="container">
+  <h2>Create Artist Profile</h2>
+  <div id="error"></div>
+  <input type="text" id="artistName" placeholder="Enter Name">
+  <input type="email" id="artistEmail" placeholder="Enter Email">
+  <input type="password" id="artistPassword" placeholder="Enter Password">
+  <input type="file" id="artistPhoto" accept="image/*">
+  <img id="profilePreview" src="https://via.placeholder.com/100" alt="Profile Photo">
+  <button id="signupBtn">Sign Up</button>
+  <button id="googleLoginBtn">Login with Google</button>
+</div>
+
+<div id="profileScreen" style="display:none;">
+  <div class="topbar">
+    <button onclick="logout()">⬅ Logout</button>
+    <h3>Artist Profile</h3>
+  </div>
+  <div class="profile">
+    <img id="profileImg" src="" alt="Profile Photo">
+    <h2 id="profileName"></h2>
+    <p id="profileEmail"></p>
+    <p id="profilePassword"></p>
+  </div>
+  <div class="songs" id="artistSongs"></div>
+  <audio id="player"></audio>
+</div>
+
+<script>
+const artistPhoto = document.getElementById("artistPhoto");
+const profilePreview = document.getElementById("profilePreview");
+const errorDiv = document.getElementById("error");
+const signupScreen = document.getElementById("signupScreen");
+const profileScreen = document.getElementById("profileScreen");
+
+// Photo preview
+artistPhoto.addEventListener('change', ()=> {
+  const file = artistPhoto.files[0];
+  if(file) profilePreview.src = URL.createObjectURL(file);
+});
+
+// Sign Up button
+document.getElementById("signupBtn").addEventListener("click", ()=>{
+  const name = document.getElementById("artistName").value.trim();
+  const email = document.getElementById("artistEmail").value.trim();
+  const password = document.getElementById("artistPassword").value.trim();
+  const photo = profilePreview.src;
+
+  if(!name || !email || !password){ errorDiv.innerText="All fields are required!"; return; }
+
+  const artist = {name,email,password,photo,songs:[]};
+  localStorage.setItem("artistProfile", JSON.stringify(artist));
+  showProfile(artist);
+});
+
+// Google Login button (demo)
+document.getElementById("googleLoginBtn").addEventListener("click", ()=>{
+  const email = prompt("Enter Google Email for demo:");
+  if(!email) return;
+  const artist = {name:"Google User",email,password:"google_auto",photo:"https://via.placeholder.com/100",songs:[]};
+  localStorage.setItem("artistProfile", JSON.stringify(artist));
+  showProfile(artist);
+});
+
+// Show profile
+function showProfile(artist){
+  signupScreen.style.display = "none";
+  profileScreen.style.display = "block";
+  document.getElementById("profileName").innerText = artist.name;
+  document.getElementById("profileEmail").innerText = artist.email;
+  document.getElementById("profilePassword").innerText = "••••••••";
+  document.getElementById("profileImg").src = artist.photo;
+  renderSongs();
+}
+
+// Demo songs
+const player = document.getElementById("player");
+const songsContainer = document.getElementById("artistSongs");
+const artistSongs = [
+  {title:"Song 1", cover_image:"https://via.placeholder.com/150", audio_file:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
+  {title:"Song 2", cover_image:"https://via.placeholder.com/150", audio_file:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"}
+];
+
+function renderSongs(){
+  songsContainer.innerHTML = "";
+  artistSongs.forEach((s,i)=>{
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `<img src="${s.cover_image}" onclick="playSong(${i})"><div>${s.title}</div>`;
+    songsContainer.appendChild(div);
+  });
+}
+
+function playSong(i){
+  const s = artistSongs[i];
+  player.src = s.audio_file;
+  player.play();
+}
+
+// Logout
+function logout(){
+  localStorage.removeItem("artistProfile");
+  signupScreen.style.display = "block";
+  profileScreen.style.display = "none";
+}
+
+// On load, check if profile exists
+window.onload = ()=>{
+  const artist = JSON.parse(localStorage.getItem("artistProfile")||"{}");
+  if(artist.name) showProfile(artist);
+};
+</script>
+
+</body>
+</html>

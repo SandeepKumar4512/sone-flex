@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artist Profile 🎧</title>
+<style>
+body { margin:0; font-family:Arial; background:#000; color:white; }
+.topbar { display:flex; align-items:center; padding:10px; background:#111; }
+.topbar button { background:none; border:none; color:white; font-size:18px; cursor:pointer; margin-right:10px; }
+.profile { display:flex; flex-direction:column; align-items:center; padding:20px; }
+.profile img { width:120px; height:120px; border-radius:50%; border:2px solid #1db954; margin-bottom:10px; }
+.profile h2 { margin:5px 0; }
+.profile p { margin:3px 0; color:#aaa; }
+.songs { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:10px; }
+.card { background:#111; padding:10px; border-radius:15px; }
+.card img { width:100%; border-radius:10px; cursor:pointer; }
+.card div { margin-top:5px; color:#fff; font-size:14px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button onclick="window.history.back()">⬅</button>
+  <h3>Artist Profile</h3>
+</div>
+
+<div class="profile">
+  <img id="artistImg" src="https://via.placeholder.com/120" alt="Profile Photo">
+  <h2 id="artistName">Artist Name</h2>
+  <p id="artistEmail">email@example.com</p>
+</div>
+
+<div class="songs" id="artistSongs"></div>
+
+<audio id="player" controls style="width:100%;"></audio>
+
+<script>
+const API = "http://localhost:5000";
+const player = document.getElementById("player");
+const songsContainer = document.getElementById("artistSongs");
+
+// Get artist ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const artistId = urlParams.get("id");
+
+async function loadArtist() {
+  if(!artistId) {
+    alert("❌ No artist ID provided");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/api/artist/${artistId}`);
+    const data = await res.json();
+
+    // Set profile info
+    const artist = data.artist;
+    document.getElementById("artistName").innerText = artist.name;
+    document.getElementById("artistEmail").innerText = artist.email;
+    document.getElementById("artistImg").src = API + "/uploads/" + artist.profilePic;
+
+    // Render songs
+    const songs = data.songs;
+    songsContainer.innerHTML = "";
+    songs.forEach((s,i) => {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.innerHTML = `<img src="${API}/uploads/${s.cover_image}" onclick="playSong('${s.audio_file}')">
+                       <div>${s.title}</div>`;
+      songsContainer.appendChild(div);
+    });
+
+  } catch(err) {
+    console.error(err);
+    alert("❌ Failed to load artist");
+  }
+}
+
+function playSong(file) {
+  player.src = API + "/uploads/" + file;
+  player.play();
+}
+
+window.onload = loadArtist;
+</script>
+
+</body>
+</html>

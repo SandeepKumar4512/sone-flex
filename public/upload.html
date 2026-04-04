@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Song</title>
+</head>
+<body style="background:black;color:white;font-family:Arial">
+
+<h2>🎵 Upload Song</h2>
+
+<form id="uploadForm">
+  <input type="text" name="title" placeholder="Song Title" required><br><br>
+  <input type="text" name="artist" placeholder="Artist Name" required><br><br>
+
+  <!-- 🌍 Language -->
+  <select id="language" name="language" required></select><br><br>
+
+  <!-- 🎶 Category -->
+  <select id="category" name="category" required></select><br><br>
+
+  🎧 Audio: <input type="file" name="audio" required><br><br>
+  🖼️ Cover: <input type="file" name="cover" required><br><br>
+
+  <button type="submit">Upload</button>
+</form>
+
+<p id="msg"></p>
+
+<script>
+// 🌐 Languages
+const languages = [
+"Hindi","English","Punjabi","Bhojpuri","Telugu","Tamil","Bengali","Malayalam",
+"Gujarati","Rajasthani","Marathi","Oriya","Assamese","Kannada","Haryanvi",
+"Spanish","French","German","Japanese","Korean","Arabic","Portuguese","Russian",
+"Chinese","Urdu","Persian","Italian","Turkish","Swahili","Nepali","Sinhala",
+"Maithili","Santali","Dogri","Konkani","Manipuri","Kashmiri","Bodo","Mizo",
+"Khasi","Tulu","Garo","Bengali Sylheti","Chhattisgarhi","Garhwali","Himachali",
+"Kokborok","Ladakhi","Lepcha","Limbu","Mundari","Pahari","Rangpuri","Sanskrit",
+"Santhali","Urhobo","Yoruba"
+];
+
+// 🎶 Categories
+const categories = [
+"Trending","Top Charts","New Releases","Love","Romantic","Sad","Heartbreak",
+"Party","Dance","Club","LoFi","Chill","Workout","Gym","Motivation","Focus",
+"Study","Sleep","Relax","Devotional","Bhakti","Festival","Desi Hits",
+"Classical","Folk","Instrumental","Jazz","Hip Hop","Pop","Rock","EDM",
+"Rap","Metal","Soul","Blues","Reggae","Country","Alternative","Indie",
+"Ambient","Meditation","Prayer","Wedding","Cultural","Regional","Patriotic",
+"Kids","Children","Comedy","Experimental","Soundtrack","Background Score",
+"Vocal","Acoustic","Electronic","Fusion","Remix","Mashup","Carnatic","Hindustani",
+"Bollywood","Tollywood","Kollywood","Punjabi Pop","Bhojpuri Hits","Chillhop",
+"Gaming","Workout Mix","Morning Vibes","Night Vibes","Rainy Day","Road Trip"
+];
+
+// 🔥 Load dropdowns
+const langSelect = document.getElementById("language");
+const catSelect = document.getElementById("category");
+
+languages.forEach(lang => {
+  const opt = document.createElement("option");
+  opt.value = lang;
+  opt.innerText = lang;
+  langSelect.appendChild(opt);
+});
+
+categories.forEach(cat => {
+  const opt = document.createElement("option");
+  opt.value = cat;
+  opt.innerText = cat;
+  catSelect.appendChild(opt);
+});
+
+// 🚀 Upload logic
+document.getElementById("uploadForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    try {
+        const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+        document.getElementById("msg").innerText = data.message;
+
+    } catch (err) {
+        document.getElementById("msg").innerText = "❌ Upload failed";
+        console.error(err);
+    }
+});
+</script>
+
+</body>
+</html>

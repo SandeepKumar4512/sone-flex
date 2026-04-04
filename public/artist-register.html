@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artist Registration 🎤</title>
+<style>
+body { margin:0; font-family:Arial; background:#000; color:white; }
+.container { max-width:400px; margin:50px auto; padding:20px; background:#111; border-radius:15px; }
+h2 { text-align:center; color:#1db954; }
+input, button { width:100%; padding:10px; margin:10px 0; border-radius:10px; border:none; font-size:16px; }
+input { background:#222; color:white; }
+button { background:#1db954; color:white; cursor:pointer; }
+#msg { text-align:center; color:#1db954; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Create Artist Profile</h2>
+  <input type="text" id="name" placeholder="Name">
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <input type="file" id="profilePic" accept="image/*">
+  <button onclick="register()">Register</button>
+  <p id="msg"></p>
+</div>
+
+<script>
+const API = "http://localhost:5000";
+
+async function register() {
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const profilePic = document.getElementById("profilePic").files[0];
+
+  if (!name || !email || !password || !profilePic) {
+    document.getElementById("msg").innerText = "❌ Please fill all fields";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("email", email);
+  formData.append("password", password);
+  formData.append("profilePic", profilePic);
+
+  try {
+    const res = await fetch(API + "/api/artist/register", {
+      method: "POST",
+      body: formData
+    });
+    const data = await res.json();
+    document.getElementById("msg").innerText = data.message;
+    if (res.ok) {
+      setTimeout(() => {
+        window.location = "artist.html?id=" + data.artist._id;
+      }, 1000);
+    }
+  } catch (err) {
+    document.getElementById("msg").innerText = "❌ Registration failed";
+  }
+}
+</script>
+</body>
+</html>

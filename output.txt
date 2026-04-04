@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SoneFlex Upload</title>
+<style>
+body{background:#000;color:white;font-family:Arial;margin:0;padding:20px;}
+h2{color:#1db954;}
+input, select, button{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;font-size:16px;}
+input, select{background:#222;color:white;}
+button{background:#1db954;color:#000;font-weight:bold;cursor:pointer;}
+.artist-option{display:flex;align-items:center;gap:10px;margin:5px 0;padding:5px;background:#111;border-radius:8px;cursor:pointer;}
+.artist-option img{width:40px;height:40px;border-radius:50%;}
+#artistList{max-height:200px;overflow-y:auto;}
+</style>
+</head>
+<body>
+<h2>🎵 Upload Song</h2>
+
+<label>Search Artist:</label>
+<input type="text" id="artistSearch" placeholder="Type artist name">
+
+<div id="artistList"></div>
+
+<form id="uploadForm" enctype="multipart/form-data" style="display:none;">
+    <input type="hidden" name="artistId" id="artistId">
+    <input type="text" name="title" placeholder="Song Title" required>
+    
+    Language:
+    <select name="language" required>
+      <option value="">Select Language</option>
+    </select>
+    
+    Category:
+    <select name="category" required>
+      <option value="">Select Category</option>
+    </select>
+    
+    Audio: <input type="file" name="audio" accept="audio/*" required>
+    Cover: <input type="file" name="cover" accept="image/*" required>
+    
+    <button type="submit">Upload</button>
+</form>
+
+<h2>🎶 All Songs</h2>
+<ul id="songsList"></ul>
+
+<script>
+// All Languages
+const languages = ["Hindi","English","Punjabi","Bhojpuri","Telugu","Tamil","Bengali","Malayalam","Gujarati","Rajasthani","Marathi","Oriya","Assamese","Kannada","Haryanvi","Spanish","French","German","Japanese","Korean","Arabic","Portuguese","Russian","Chinese","Urdu","Persian","Italian","Turkish","Swahili","Nepali","Sinhala","Maithili","Santali","Dogri","Konkani","Manipuri","Kashmiri","Bodo","Mizo","Khasi","Tulu","Garo","Bengali Sylheti","Chhattisgarhi","Garhwali","Himachali","Kokborok","Ladakhi","Lepcha","Limbu","Mundari","Pahari","Rangpuri","Sanskrit","Santhali","Urhobo","Yoruba"];
+
+// All Categories
+const categories = ["Trending","Top Charts","New Releases","Love","Romantic","Sad","Heartbreak","Party","Dance","Club","LoFi","Chill","Workout","Gym","Motivation","Focus","Study","Sleep","Relax","Devotional","Bhakti","Festival","Desi Hits","Classical","Folk","Instrumental","Jazz","Hip Hop","Pop","Rock","EDM","Rap","Metal","Soul","Blues","Reggae","Country","Alternative","Indie","Ambient","Meditation","Prayer","Wedding","Cultural","Regional","Patriotic","Kids","Children","Comedy","Experimental","Soundtrack","Background Score","Vocal","Acoustic","Electronic","Fusion","Remix","Mashup","Carnatic","Hindustani","Bollywood","Tollywood","Kollywood","Punjabi Pop","Bhojpuri Hits","Chillhop","Gaming","Workout Mix","Morning Vibes","Night Vibes","Rainy Day","Road Trip"];
+
+// Populate language & category dropdowns
+const languageSelect = document.querySelector('select[name="language"]');
+const categorySelect = document.querySelector('select[name="category"]');
+languages.forEach(l=>languageSelect.innerHTML+=`<option value="${l}">${l}</option>`);
+categories.forEach(c=>categorySelect.innerHTML+=`<option value="${c}">${c}</option>`);
+
+const artistSearch = document.getElementById("artistSearch");
+const artistList = document.getElementById("artistList");
+const uploadForm = document.getElementById("uploadForm");
+const artistIdInput = document.getElementById("artistId");
+const songsList = document.getElementById("songsList");
+
+let artistsCache = [];
+
+// Fetch artists once
+async function fetchArtists(){
+    const res = await fetch("/api/artists");
+    artistsCache = await res.json();
+}
+fetchArtists();
+
+// Live search
+artistSearch.addEventListener("input", ()=>{
+    const query = artistSearch.value.toLowerCase();
+    artistList.innerHTML="";
+    if(!query) return;
+    artistsCache.filter(a=>a.name.toLowerCase().includes(query)).forEach(a=>{
+        const div = document.createElement("div");
+        div.className="artist-option";
+        div.innerHTML=`<img src="/uploads/${a.profilePic}">${a.name}`;
+        div.onclick=()=>{
+            artistIdInput.value = a._id;
+            uploadForm.style.display="block";
+            artistList.innerHTML = `<p>Selected: <img src="/uploads/${a.profilePic}" style="width:40px;height:40px;border-radius:50%;"> ${a.name}</p>`;
+        };
+        artistList.appendChild(div);
+    });
+});
+
+// Upload song
+uploadForm.addEventListener("submit", async e=>{
+    e.preventDefault();
+    const data = new FormData(uploadForm);
+    const res = await fetch("/api/upload",{method:"POST",body:data});
+    const json = await res.json();
+    alert(json.message);
+    loadSongs();
+});
+
+// Load all songs
+async function loadSongs(){
+    const res = await fetch("/api/songs");
+    const songs = await res.json();
+    songsList.innerHTML="";
+    songs.forEach(s=>{
+        songsList.innerHTML+=
+        `<li>${s.title} - ${s.artist} [${s.language} | ${s.category}]<br>
+         <audio controls src="/uploads/${s.audio_file}"></audio><br>
+         <img src="/uploads/${s.cover_image}" width="100"></li>`;
+    });
+}
+
+loadSongs();
+</script>
+</body>
+</html>

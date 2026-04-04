@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Play Songs - Sone Flex</title>
+<style>
+    body { font-family: Arial; background: #0f172a; color: white; text-align:center; padding: 20px; }
+    .song { margin: 20px 0; padding: 10px; border: 1px solid #2563eb; border-radius: 10px; }
+    img { width: 100px; height: 100px; object-fit: cover; border-radius: 10px; }
+    audio { margin-top: 10px; width: 100%; max-width: 400px; }
+</style>
+</head>
+<body>
+<h1>All Songs</h1>
+<div id="songsContainer">Loading songs...</div>
+
+<script>
+async function loadSongs() {
+    const container = document.getElementById("songsContainer");
+    try {
+        const res = await fetch("/api/songs");
+        const songs = await res.json();
+        if(!songs.length) { container.innerHTML = "<p>No songs uploaded yet.</p>"; return; }
+        container.innerHTML = songs.map(song => `
+            <div class="song">
+                <h3>${song.title} - ${song.artist}</h3>
+                <p>${song.language} | ${song.category}</p>
+                <img src="/uploads/${song.cover_image}" alt="Cover">
+                <audio controls src="/uploads/${song.audio_file}"></audio>
+            </div>
+        `).join("");
+    } catch(err) {
+        container.innerHTML = "<p>Failed to load songs.</p>";
+        console.error(err);
+    }
+}
+loadSongs();
+</script>
+</body>
+</html>

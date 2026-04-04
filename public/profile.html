@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#000;
+color:white;
+}
+
+/* HEADER */
+.header{
+padding:20px;
+display:flex;
+align-items:center;
+gap:15px;
+}
+
+.dp{
+width:60px;
+height:60px;
+border-radius:50%;
+background:#ff3b3b;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:25px;
+}
+
+.name{
+font-size:20px;
+font-weight:bold;
+}
+
+.sub{
+color:#aaa;
+font-size:12px;
+}
+
+/* MENU LIST */
+.menu{
+padding:10px;
+}
+
+.item{
+display:flex;
+align-items:center;
+gap:15px;
+padding:15px;
+border-bottom:1px solid #222;
+cursor:pointer;
+font-size:16px;
+}
+
+.item:hover{
+background:#111;
+}
+
+.icon{
+font-size:20px;
+}
+
+/* BACK */
+.back{
+padding:15px;
+text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+<div class="dp">P</div>
+
+<div>
+<div class="name">Paras Ray</div>
+<div class="sub">प्रोफाइल देखें</div>
+</div>
+</div>
+
+<!-- MENU -->
+<div class="menu">
+
+<div class="item" onclick="alert('Account Add')">
+<span class="icon">➕</span> अकाउंट जोड़ें
+</div>
+
+<div class="item" onclick="alert('New Features')">
+<span class="icon">⚡</span> नया क्या है
+</div>
+
+<div class="item" onclick="alert('Recent')">
+<span class="icon">🕘</span> हाल के
+</div>
+
+<div class="item" onclick="alert('Updates')">
+<span class="icon">📢</span> आपके अपडेट · नया
+</div>
+
+<div class="item" onclick="goSettings()">
+<span class="icon">⚙</span> सेटिंग और प्राइवेसी
+</div>
+
+</div>
+
+<!-- BACK -->
+<div class="back">
+<button onclick="goHome()">⬅ Back</button>
+</div>
+
+<script>
+function goHome(){
+window.location.href="index.html";
+}
+
+function goSettings(){
+window.location.href="settings.html";
+}
+</script>
+
+</body>
+</html>

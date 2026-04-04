@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Playlist</title>
+
+<style>
+body{margin:0;background:#000;color:white;font-family:Arial;}
+
+.header{
+padding:15px;
+background:#111;
+font-size:20px;
+text-align:center;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+padding:10px;
+}
+
+.card{
+background:#111;
+border-radius:10px;
+padding:5px;
+}
+
+.card img{
+width:100%;
+border-radius:10px;
+}
+
+.nav{
+position:fixed;
+bottom:0;
+width:100%;
+background:#111;
+display:flex;
+justify-content:space-around;
+padding:10px 0;
+}
+
+button{
+background:red;
+border:none;
+padding:5px;
+border-radius:5px;
+color:white;
+margin-top:5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">🎶 My Playlist</div>
+
+<div class="grid" id="playlistSongs"></div>
+
+<div class="nav">
+  <div onclick="goHome()">🏠<br>Home</div>
+  <div>🎵<br>Playlist</div>
+</div>
+
+<script>
+
+let playlist = JSON.parse(localStorage.getItem("playlist")) || [];
+
+async function loadPlaylist(){
+  const res = await fetch("/api/songs");
+  const allSongs = await res.json();
+
+  const list = allSongs.filter(s => playlist.includes(s._id));
+
+  const box = document.getElementById("playlistSongs");
+  box.innerHTML="";
+
+  list.forEach(s=>{
+    box.innerHTML+=`
+    <div class="card" onclick="play('${s.audio_file}')">
+      <img src="/uploads/${s.cover_image}">
+      <div>${s.title}</div>
+      <small>${s.artistName}</small>
+      <button onclick="remove('${s._id}')">Remove</button>
+    </div>`;
+  });
+}
+
+function play(file){
+  const audio = new Audio("/uploads/"+file);
+  audio.play();
+}
+
+function remove(id){
+  playlist = playlist.filter(i=>i!==id);
+  localStorage.setItem("playlist", JSON.stringify(playlist));
+  loadPlaylist();
+}
+
+function goHome(){
+  window.location.href="/";
+}
+
+loadPlaylist();
+
+</script>
+
+</body>
+</html>

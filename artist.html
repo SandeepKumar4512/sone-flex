@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artist</title>
+
+<style>
+body{background:#000;color:white;font-family:Arial;}
+.grid{display:flex;flex-wrap:wrap;gap:10px;padding:10px;}
+.card{width:45%;background:#111;padding:10px;border-radius:10px;}
+</style>
+</head>
+
+<body>
+
+<h2 id="name"></h2>
+<div class="grid" id="songs"></div>
+
+<script>
+
+const params=new URLSearchParams(location.search);
+const artist=params.get("name");
+
+name.innerText=artist;
+
+async function load(){
+  const res=await fetch("http://localhost:5000/api/songs");
+  const data=await res.json();
+
+  data.filter(s=>s.artistName===artist)
+  .forEach(s=>{
+    songs.innerHTML+=`
+    <div class="card">
+      <img src="/uploads/${s.cover_image}" width="100%">
+      <div>${s.title}</div>
+    </div>`;
+  });
+}
+
+load();
+
+</script>
+
+</body>
+</html>

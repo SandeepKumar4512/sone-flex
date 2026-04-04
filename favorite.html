@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Favorites</title>
+<style>
+body{background:#000;color:white;font-family:Arial;}
+.card{background:#111;margin:10px;padding:10px;}
+</style>
+</head>
+
+<body>
+
+<h2>❤️ Favorite Songs</h2>
+<div id="list"></div>
+
+<script>
+async function load(){
+  const res = await fetch("http://localhost:5000/api/favorite");
+  const data = await res.json();
+
+  data.forEach(s=>{
+    list.innerHTML += `
+    <div class="card">
+      ${s.title} - ${s.artistName}
+    </div>`;
+  });
+}
+
+load();
+</script>
+
+</body>
+</html>
